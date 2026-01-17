@@ -67,3 +67,6 @@ export const Gallery = ({ photos }) => {
 
 
 
+
+
+

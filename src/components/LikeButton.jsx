@@ -18,7 +18,12 @@ export const LikeButton = ({ listingId, showCount = true, size = 'medium' }) => 
     setLikeCount(getLikeCount(listingId));
   }, [listingId]);
 
-  const handleLike = () => {
+  const handleLike = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (!user) {
       alert('Vous devez être connecté pour liker une annonce');
       return;
@@ -55,6 +60,9 @@ export const LikeButton = ({ listingId, showCount = true, size = 'medium' }) => 
     </button>
   );
 };
+
+
+
 
 
 

@@ -53,3 +53,6 @@ export const Map = ({ latitude, longitude, title, city, district }) => {
 
 
 
+
+
+

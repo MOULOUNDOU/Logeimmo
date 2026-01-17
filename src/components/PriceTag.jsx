@@ -20,3 +20,6 @@ export const PriceTag = ({ price, className = '' }) => {
 
 
 
+
+
+
