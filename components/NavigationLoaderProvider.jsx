@@ -40,6 +40,45 @@ export function NavigationLoaderProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
 
+  // Loader global sur clic (plus intrusif): bouton / lien / role="button"
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const shouldIgnoreTarget = (el) => {
+      if (!el) return true
+
+      const tag = (el.tagName || '').toLowerCase()
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'option') return true
+
+      if (el.closest('[data-no-global-loader="true"]')) return true
+      return false
+    }
+
+    const handleDocumentClick = (e) => {
+      if (e.defaultPrevented) return
+
+      const target = e.target
+      if (!(target instanceof Element)) return
+      if (shouldIgnoreTarget(target)) return
+
+      const actionable = target.closest('a,button,[role="button"]')
+      if (!actionable) return
+
+      if (actionable instanceof HTMLButtonElement && actionable.disabled) return
+      if (actionable.getAttribute('aria-disabled') === 'true') return
+      if (actionable.hasAttribute('aria-expanded')) return
+      if (actionable.getAttribute('aria-haspopup') === 'true') return
+      if (actionable.closest('[data-no-global-loader="true"]')) return
+
+      startLoading()
+    }
+
+    document.addEventListener('click', handleDocumentClick, true)
+    return () => {
+      document.removeEventListener('click', handleDocumentClick, true)
+    }
+  }, [startLoading])
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

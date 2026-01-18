@@ -155,6 +155,8 @@ export default function Home() {
                 className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
                 aria-label="Menu"
                 title="Menu"
+                aria-expanded={mobileMenuOpen}
+                data-no-global-loader="true"
               >
                 {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
               </button>
@@ -163,19 +165,25 @@ export default function Home() {
                 <div className="h-9 w-9 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                   <Image src="/digicode-immo-logo.jpeg" alt="Digicode Immo" width={36} height={36} priority />
                 </div>
-                <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100">Digicode-IMMO</h1>
+                <h1 className="text-sm sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate max-w-[140px] xs:max-w-[180px] sm:max-w-none">Digicode-IMMO</h1>
               </Link>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 type="button"
-                onClick={toggleTheme}
+                onClick={() => {
+                  if (user) {
+                    router.push('/parametres')
+                  } else {
+                    router.push('/login')
+                  }
+                }}
                 className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
-                aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-                title={isDark ? 'Mode clair' : 'Mode sombre'}
+                aria-label={user ? 'Mon compte' : 'Connexion'}
+                title={user ? 'Mon compte' : 'Connexion'}
               >
-                {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                <FiUser size={18} />
               </button>
               <div className="hidden md:flex items-center gap-4">
               {user ? (
@@ -227,7 +235,7 @@ export default function Home() {
               onClick={() => setMobileMenuOpen(false)}
             />
             <div
-              className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl p-4"
+              className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl p-4 overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -240,6 +248,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
+                  data-no-global-loader="true"
                   className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
                   aria-label="Fermer le menu"
                 >
@@ -256,6 +265,16 @@ export default function Home() {
                   <FiHome size={18} />
                   <span>Accueil</span>
                 </Link>
+
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  data-no-global-loader="true"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                  <span>{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+                </button>
                 <Link
                   href="/annonces"
                   onClick={() => setMobileMenuOpen(false)}
@@ -359,7 +378,7 @@ export default function Home() {
       <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-900 border-b border-primary-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               {heroWords.map((w, idx) => (
                 <span
                   key={`${w}-${idx}`}
@@ -370,14 +389,14 @@ export default function Home() {
                 </span>
               ))}
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Explorez des milliers de chambres, studios et appartements disponibles dans les principales villes du pays
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-transparent dark:border-gray-800">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 sm:p-6 border border-transparent dark:border-gray-800">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-2">
                   <div className="relative">
@@ -387,7 +406,7 @@ export default function Home() {
                       placeholder="Rechercher par quartier, type de logement..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                     />
                   </div>
                 </div>
@@ -395,7 +414,7 @@ export default function Home() {
                   <select
                     value={filters.type}
                     onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                   >
                     <option value="">Tous les types</option>
                     <option value="chambre">Chambre</option>
@@ -408,7 +427,7 @@ export default function Home() {
                   <select
                     value={filters.ville}
                     onChange={(e) => setFilters({ ...filters, ville: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                   >
                     <option value="">Toutes les villes</option>
                     <option value="Dakar">Dakar</option>

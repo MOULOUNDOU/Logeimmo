@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { FiSearch, FiCopy, FiLink2, FiGrid, FiUser, FiLogOut, FiHome, FiMoon, FiSun, FiMenu } from 'react-icons/fi'
+import { FiSearch, FiCopy, FiLink2, FiGrid, FiUser, FiLogOut, FiHome, FiMenu } from 'react-icons/fi'
 import { getCurrentUser, logout } from '@/lib/supabase/auth'
 import { useNavigationLoader } from '@/components/NavigationLoaderProvider'
 import { useSidebar } from '@/components/SidebarProvider'
@@ -17,7 +17,6 @@ export default function Header() {
     return null
   })
   const [showMenu, setShowMenu] = useState(false)
-  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -26,33 +25,6 @@ export default function Header() {
       })
     }
   }, [])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const saved = window.localStorage.getItem('digicode_theme')
-    const nextIsDark = saved ? saved === 'dark' : false
-
-    setIsDark(nextIsDark)
-    if (nextIsDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [])
-
-  const toggleTheme = () => {
-    const next = !isDark
-    setIsDark(next)
-
-    if (next) {
-      document.documentElement.classList.add('dark')
-      window.localStorage.setItem('digicode_theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      window.localStorage.setItem('digicode_theme', 'light')
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -71,6 +43,7 @@ export default function Header() {
           className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
           aria-label="Ouvrir le menu"
           title="Menu"
+          data-no-global-loader="true"
         >
           <FiMenu size={20} />
         </button>
@@ -120,12 +93,15 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <button
           type="button"
-          onClick={toggleTheme}
+          onClick={() => {
+            startLoading()
+            router.push(user ? '/parametres' : '/login')
+          }}
           className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
-          aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-          title={isDark ? 'Mode clair' : 'Mode sombre'}
+          aria-label={user ? 'Mon compte' : 'Se connecter'}
+          title={user ? 'Mon compte' : 'Connexion'}
         >
-          {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+          <FiUser size={18} />
         </button>
         <div className="hidden md:flex items-center gap-4">
           {user && (
@@ -157,6 +133,8 @@ export default function Header() {
                 <button
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  aria-expanded={showMenu}
+                  data-no-global-loader="true"
                 >
                   <FiUser size={18} />
                   <span>{user.nom || 'Utilisateur'}</span>

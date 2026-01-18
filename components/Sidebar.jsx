@@ -14,7 +14,9 @@ import {
   FiHelpCircle,
   FiChevronRight,
   FiLogOut,
-  FiUser
+  FiUser,
+  FiMoon,
+  FiSun
 } from 'react-icons/fi'
 import { useNavigationLoader } from '@/components/NavigationLoaderProvider'
 import { useSidebar } from '@/components/SidebarProvider'
@@ -31,6 +33,7 @@ export default function Sidebar() {
   const [userRole, setUserRole] = useState(null)
   const [user, setUser] = useState(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -89,6 +92,33 @@ export default function Sidebar() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const saved = window.localStorage.getItem('digicode_theme')
+    const nextIsDark = saved ? saved === 'dark' : false
+
+    setIsDark(nextIsDark)
+    if (nextIsDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const next = !isDark
+    setIsDark(next)
+
+    if (next) {
+      document.documentElement.classList.add('dark')
+      window.localStorage.setItem('digicode_theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      window.localStorage.setItem('digicode_theme', 'light')
+    }
+  }
 
   const isCourtier = userRole === 'courtier'
   const isClient = userRole === 'client'
@@ -263,6 +293,15 @@ export default function Sidebar() {
 
       {/* Bottom section */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          data-no-global-loader="true"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          {isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
+          <span className="text-sm font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+        </button>
         <button 
           onClick={() => handleNavigation('/parametres')}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
