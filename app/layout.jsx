@@ -1,4 +1,5 @@
 import './globals.css'
+import { Suspense } from 'react'
 import { Inter } from 'next/font/google'
 import { NavigationLoaderProvider } from '@/components/NavigationLoaderProvider'
 import { SidebarProvider } from '@/components/SidebarProvider'
@@ -14,9 +15,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body className={`${inter.className} page-transition`}>
-        <NavigationLoaderProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </NavigationLoaderProvider>
+        <Suspense fallback={null}>
+          <NavigationLoaderProvider>
+            <SidebarProvider>{children}</SidebarProvider>
+          </NavigationLoaderProvider>
+        </Suspense>
       </body>
     </html>
   )
