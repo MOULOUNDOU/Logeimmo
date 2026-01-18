@@ -31,8 +31,7 @@ export default function Header() {
     if (typeof window === 'undefined') return
 
     const saved = window.localStorage.getItem('digicode_theme')
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    const nextIsDark = saved ? saved === 'dark' : prefersDark
+    const nextIsDark = saved ? saved === 'dark' : false
 
     setIsDark(nextIsDark)
     if (nextIsDark) {

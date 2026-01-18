@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getCurrentUser } from '@/lib/supabase/auth'
 import { getAnnonces } from '@/lib/supabase/annonces'
-import { FiHome, FiMapPin, FiMaximize2, FiSearch, FiLogIn, FiUserPlus, FiUser, FiKey, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheckCircle, FiMoon, FiSun, FiMenu, FiX } from 'react-icons/fi'
+import { FiHome, FiMapPin, FiMaximize2, FiSearch, FiLogIn, FiUserPlus, FiUser, FiKey, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheckCircle, FiMoon, FiSun, FiMenu, FiX, FiHeart, FiBell, FiGrid } from 'react-icons/fi'
 import AnnonceCarousel from '@/components/AnnonceCarousel'
 import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
@@ -45,8 +45,7 @@ export default function Home() {
     if (typeof window === 'undefined') return
 
     const saved = window.localStorage.getItem('digicode_theme')
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    const nextIsDark = saved ? saved === 'dark' : prefersDark
+    const nextIsDark = saved ? saved === 'dark' : false
 
     setIsDark(nextIsDark)
 
@@ -117,6 +116,20 @@ export default function Home() {
       router.push('/login')
     }
   }
+
+  const dashboardPath = user
+    ? user.role === 'admin'
+      ? '/admin'
+      : user.role === 'courtier'
+        ? '/dashboard-courtier'
+        : '/dashboard-client'
+    : '/login'
+
+  const notificationsPath = user
+    ? user.role === 'client'
+      ? '/notifications-client'
+      : '/notifications'
+    : '/login'
 
   // Pagination
   const totalPages = Math.ceil(filteredAnnonces.length / itemsPerPage)
@@ -208,52 +221,135 @@ export default function Home() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              {user ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleUserAction()
-                    }}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          <div className="md:hidden fixed inset-0 z-[60]">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div
+              className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    <Image src="/digicode-immo-logo.jpeg" alt="Digicode Immo" width={32} height={32} priority />
+                  </div>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Menu</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  aria-label="Fermer le menu"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              <nav className="space-y-1">
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiHome size={18} />
+                  <span>Accueil</span>
+                </Link>
+                <Link
+                  href="/annonces"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiGrid size={18} />
+                  <span>Annonces</span>
+                </Link>
+
+                {user ? (
+                  <Link
+                    href={dashboardPath}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     <FiUser size={18} />
-                    <span>{user.nom}</span>
-                  </button>
-                  {(user.role === 'courtier' || user.role === 'admin') && (
-                    <Link
-                      href="/publier"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full flex items-center gap-2 px-4 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      <FiKey size={18} />
-                      <span>Publier une annonce</span>
-                    </Link>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <FiLogIn size={18} />
-                    <span>Connexion</span>
+                    <span>Mon espace</span>
                   </Link>
+                ) : (
                   <Link
                     href="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full flex items-center gap-2 px-4 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     <FiUserPlus size={18} />
-                    <span>S'inscrire</span>
+                    <span>Devenir courtier</span>
                   </Link>
-                </>
-              )}
+                )}
+
+                <Link
+                  href={notificationsPath}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiBell size={18} />
+                  <span>Notifications</span>
+                </Link>
+
+                <Link
+                  href={user ? '/favoris' : '/login'}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiHeart size={18} />
+                  <span>Favoris</span>
+                </Link>
+              </nav>
+
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
+                {user ? (
+                  <>
+                    {(user.role === 'courtier' || user.role === 'admin') && (
+                      <Link
+                        href="/publier"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <FiKey size={18} />
+                        <span>Publier une annonce</span>
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        handleUserAction()
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <FiUser size={18} />
+                      <span>{user.nom}</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <FiLogIn size={18} />
+                      <span>Connexion</span>
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
+                    >
+                      <FiUserPlus size={18} />
+                      <span>S'inscrire</span>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}

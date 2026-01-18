@@ -18,7 +18,7 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
     telephone: '',
-    role: USER_ROLES.CLIENT
+    role: USER_ROLES.COURTIER
   })
   const [errors, setErrors] = useState({})
   const [errorMessage, setErrorMessage] = useState('')
