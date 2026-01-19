@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { FiSearch, FiCopy, FiLink2, FiGrid, FiUser, FiLogOut, FiHome, FiMenu } from 'react-icons/fi'
+import { FiSearch, FiCopy, FiLink2, FiGrid, FiUser, FiLogOut, FiHome, FiMenu, FiMoon, FiSun } from 'react-icons/fi'
 import { getCurrentUser, logout } from '@/lib/supabase/auth'
 import { useNavigationLoader } from '@/components/NavigationLoaderProvider'
 import { useSidebar } from '@/components/SidebarProvider'
@@ -17,14 +17,40 @@ export default function Header() {
     return null
   })
   const [showMenu, setShowMenu] = useState(false)
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       getCurrentUser().then((authData) => {
         setUser(authData?.user || null)
       })
+
+      const storedTheme = window.localStorage.getItem('digicode_theme')
+      if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark')
+        setIsDark(true)
+      } else {
+        document.documentElement.classList.remove('dark')
+        setIsDark(false)
+      }
     }
   }, [])
+
+  const toggleTheme = () => {
+    if (typeof window === 'undefined') return
+
+    setIsDark((prev) => {
+      const next = !prev
+      if (next) {
+        document.documentElement.classList.add('dark')
+        window.localStorage.setItem('digicode_theme', 'dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+        window.localStorage.setItem('digicode_theme', 'light')
+      }
+      return next
+    })
+  }
 
   const handleLogout = () => {
     logout()
@@ -93,11 +119,21 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <button
           type="button"
+          onClick={toggleTheme}
+          data-no-global-loader="true"
+          className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+          aria-label={isDark ? 'Mode clair' : 'Mode sombre'}
+          title={isDark ? 'Mode clair' : 'Mode sombre'}
+        >
+          {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+        </button>
+        <button
+          type="button"
           onClick={() => {
             startLoading()
             router.push(user ? '/parametres' : '/login')
           }}
-          className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
           aria-label={user ? 'Mon compte' : 'Se connecter'}
           title={user ? 'Mon compte' : 'Connexion'}
         >
