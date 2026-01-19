@@ -561,7 +561,7 @@ export default function Home() {
                       placeholder="Rechercher par quartier, type de logement..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-sm"
                     />
                   </div>
                 </div>
@@ -569,7 +569,7 @@ export default function Home() {
                   <select
                     value={filters.type}
                     onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-sm"
                   >
                     <option value="">Tous les types</option>
                     <option value="Appartement">Appartement</option>
@@ -585,7 +585,7 @@ export default function Home() {
                     inputMode="numeric"
                     value={filters.prixMin}
                     onChange={(e) => setFilters((prev) => ({ ...prev, prixMin: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-sm"
                     placeholder="Prix min (FCFA)"
                   />
                 </div>
@@ -595,7 +595,7 @@ export default function Home() {
                     inputMode="numeric"
                     value={filters.prixMax}
                     onChange={(e) => setFilters((prev) => ({ ...prev, prixMax: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-sm"
                     placeholder="Prix max (FCFA)"
                   />
                 </div>
@@ -603,7 +603,7 @@ export default function Home() {
                   <select
                     value={filters.ville}
                     onChange={(e) => setFilters((prev) => ({ ...prev, ville: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-sm"
                   >
                     <option value="">Toutes les villes</option>
                     <option value="Dakar">Dakar</option>
