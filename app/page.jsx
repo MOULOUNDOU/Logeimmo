@@ -12,6 +12,147 @@ import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
 import Footer from '@/components/Footer'
 
+function HomeAnnonceCard({ annonce, formatPrice }) {
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const photos = annonce?.photos || []
+  const hasPhotos = photos.length > 0
+  const canPaginate = photos.length > 1
+
+  const stop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const prevPhoto = (e) => {
+    stop(e)
+    setPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length)
+  }
+
+  const nextPhoto = (e) => {
+    stop(e)
+    setPhotoIndex((prev) => (prev + 1) % photos.length)
+  }
+
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+      {/* Image */}
+      <Link href={`/annonces/${annonce.id}`}>
+        <div className="h-48 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden cursor-pointer group">
+          {hasPhotos ? (
+            <img
+              src={photos[photoIndex]}
+              alt={annonce.titre}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <FiHome className="text-primary-600" size={64} />
+            </div>
+          )}
+
+          {canPaginate && (
+            <>
+              <button
+                type="button"
+                onClick={prevPhoto}
+                data-no-global-loader="true"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 transition-colors"
+                aria-label="Photo précédente"
+              >
+                <FiChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={nextPhoto}
+                data-no-global-loader="true"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 transition-colors"
+                aria-label="Photo suivante"
+              >
+                <FiChevronRight size={18} />
+              </button>
+            </>
+          )}
+
+          <div className="absolute top-3 left-3">
+            <span className="inline-block px-3 py-1 bg-primary-500 text-gray-900 text-xs font-medium rounded-full">
+              {annonce.type}
+            </span>
+          </div>
+          {annonce.meuble && (
+            <div className="absolute top-3 right-3">
+              <span className="inline-block px-3 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                Meublé
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+
+      {/* Content */}
+      <div className="p-6">
+        <Link href={`/annonces/${annonce.id}`}>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
+            {annonce.titre}
+          </h3>
+        </Link>
+        <p className="text-2xl font-bold text-primary-600 mb-4">
+          {formatPrice(annonce.prix)}
+        </p>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <FiMapPin size={16} />
+            <span>{annonce.quartier}, {annonce.ville}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <FiMaximize2 size={16} />
+            <span>{annonce.superficie} m²</span>
+          </div>
+          {annonce.chambres > 1 && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <FiHome size={16} />
+              <span>{annonce.chambres} chambres • {annonce.sallesDeBain} salle(s) de bain</span>
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">
+          {annonce.description}
+        </p>
+        
+        {/* Courtier info */}
+        <div className="flex items-center gap-3 mb-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+          {annonce.createdByPhoto ? (
+            <img
+              src={annonce.createdByPhoto}
+              alt={annonce.createdByNom}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+              <FiUser className="text-primary-600" size={20} />
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{annonce.createdByNom}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Courtier</p>
+          </div>
+        </div>
+        
+        {/* Actions */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+          <LikeButton annonceId={annonce.id} />
+          <ShareButton annonceId={annonce.id} titre={annonce.titre} />
+          <Link
+            href={`/annonces/${annonce.id}`}
+            className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-sm font-medium transition-colors text-center"
+          >
+            Voir détails
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const router = useRouter()
   const [annonces, setAnnonces] = useState([])
@@ -71,8 +212,9 @@ export default function Home() {
 
   const loadAnnonces = async () => {
     const allAnnonces = await getAnnonces({ onlyCourtiers: true })
-    setAnnonces(allAnnonces)
-    setFilteredAnnonces(allAnnonces)
+    const shuffled = [...allAnnonces].sort(() => Math.random() - 0.5)
+    setAnnonces(shuffled)
+    setFilteredAnnonces(shuffled)
     setLoading(false)
   }
 
@@ -488,98 +630,7 @@ export default function Home() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {currentAnnonces.map((annonce) => (
-                <div key={annonce.id} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                  {/* Image */}
-                  <Link href={`/annonces/${annonce.id}`}>
-                    <div className="h-48 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden cursor-pointer group">
-                      {annonce.photos && annonce.photos.length > 0 ? (
-                        <img
-                          src={annonce.photos[0]}
-                          alt={annonce.titre}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <FiHome className="text-primary-600" size={64} />
-                        </div>
-                      )}
-                      <div className="absolute top-3 left-3">
-                        <span className="inline-block px-3 py-1 bg-primary-500 text-gray-900 text-xs font-medium rounded-full">
-                          {annonce.type}
-                        </span>
-                      </div>
-                      {annonce.meuble && (
-                        <div className="absolute top-3 right-3">
-                          <span className="inline-block px-3 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
-                            Meublé
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <Link href={`/annonces/${annonce.id}`}>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
-                        {annonce.titre}
-                      </h3>
-                    </Link>
-                    <p className="text-2xl font-bold text-primary-600 mb-4">
-                      {formatPrice(annonce.prix)}
-                    </p>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <FiMapPin size={16} />
-                        <span>{annonce.quartier}, {annonce.ville}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <FiMaximize2 size={16} />
-                        <span>{annonce.superficie} m²</span>
-                      </div>
-                      {annonce.chambres > 1 && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                          <FiHome size={16} />
-                          <span>{annonce.chambres} chambres • {annonce.sallesDeBain} salle(s) de bain</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">
-                      {annonce.description}
-                    </p>
-                    
-                    {/* Courtier info */}
-                    <div className="flex items-center gap-3 mb-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                      {annonce.createdByPhoto ? (
-                        <img
-                          src={annonce.createdByPhoto}
-                          alt={annonce.createdByNom}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                          <FiUser className="text-primary-600" size={20} />
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{annonce.createdByNom}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Courtier</p>
-                      </div>
-                    </div>
-                    
-                    {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
-                      <LikeButton annonceId={annonce.id} />
-                      <ShareButton annonceId={annonce.id} titre={annonce.titre} />
-                      <Link
-                        href={`/annonces/${annonce.id}`}
-                        className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-sm font-medium transition-colors text-center"
-                      >
-                        Voir détails
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <HomeAnnonceCard key={annonce.id} annonce={annonce} formatPrice={formatPrice} />
               ))}
             </div>
 

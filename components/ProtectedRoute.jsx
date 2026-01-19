@@ -23,18 +23,21 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
         return
       }
 
-      if (requiredRole && authData?.user?.role !== requiredRole) {
-        const role = authData?.user?.role
-        const redirectTo =
-          role === 'admin'
-            ? '/admin'
-            : role === 'courtier'
-              ? '/dashboard-courtier'
-              : '/annonces'
-        router.replace(redirectTo)
-        setIsAuthorized(false)
-        setIsLoading(false)
-        return
+      if (requiredRole) {
+        const required = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
+        if (!required.includes(authData?.user?.role)) {
+          const role = authData?.user?.role
+          const redirectTo =
+            role === 'admin'
+              ? '/admin'
+              : role === 'courtier'
+                ? '/dashboard-courtier'
+                : '/annonces'
+          router.replace(redirectTo)
+          setIsAuthorized(false)
+          setIsLoading(false)
+          return
+        }
       }
 
       setIsAuthorized(true)

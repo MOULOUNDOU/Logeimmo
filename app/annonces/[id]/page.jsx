@@ -138,6 +138,7 @@ export default function AnnonceDetailPage() {
                       <>
                         <button
                           onClick={() => setCurrentImageIndex((prev) => (prev - 1 + annonce.photos.length) % annonce.photos.length)}
+                          data-no-global-loader="true"
                           className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 sm:p-2 transition-colors"
                         >
                           <FiArrowLeft size={20} className="sm:hidden" />
@@ -145,12 +146,30 @@ export default function AnnonceDetailPage() {
                         </button>
                         <button
                           onClick={() => setCurrentImageIndex((prev) => (prev + 1) % annonce.photos.length)}
+                          data-no-global-loader="true"
                           className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-1.5 sm:p-2 transition-colors"
                         >
                           <FiArrowLeft className="rotate-180 sm:hidden" size={20} />
                           <FiArrowLeft className="rotate-180 hidden sm:block" size={24} />
                         </button>
                       </>
+                    )}
+
+                    {annonce.photos.length > 1 && (
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/35">
+                        {annonce.photos.map((_, idx) => (
+                          <button
+                            key={`dot-${idx}`}
+                            type="button"
+                            onClick={() => setCurrentImageIndex(idx)}
+                            data-no-global-loader="true"
+                            className={`h-2 w-2 rounded-full transition-colors ${
+                              currentImageIndex === idx ? 'bg-white' : 'bg-white/50 hover:bg-white/80'
+                            }`}
+                            aria-label={`Aller à la photo ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                   {annonce.photos.length > 1 && (
@@ -160,6 +179,7 @@ export default function AnnonceDetailPage() {
                           <button
                             key={index}
                             onClick={() => setCurrentImageIndex(index)}
+                            data-no-global-loader="true"
                             className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-transform duration-200 hover:scale-[1.03] ${
                               currentImageIndex === index ? 'border-primary-500' : 'border-gray-200'
                             }`}

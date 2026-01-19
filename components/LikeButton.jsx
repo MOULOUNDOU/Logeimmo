@@ -64,6 +64,7 @@ export default function LikeButton({ annonceId, showCount = true }) {
   return (
     <button
       onClick={handleLike}
+      data-no-global-loader="true"
       className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg transition-colors ${
         liked
           ? 'bg-red-50 text-red-600 hover:bg-red-100'

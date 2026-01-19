@@ -140,9 +140,14 @@ export default function Sidebar() {
           { id: 'Notifications', icon: FiBell, path: '/notifications-client' },
           { id: 'Rechercher courtier', icon: FiMail, path: '/rechercher-courtier' }
         ]
-      : [
-          { id: 'Tableau de bord', icon: FiGrid, path: '/dashboard' }
-        ]
+      : isAdmin
+        ? [
+            { id: 'Tableau de bord', icon: FiGrid, path: '/admin' },
+            { id: 'Notifications', icon: FiBell, path: '/notifications' }
+          ]
+        : [
+            { id: 'Tableau de bord', icon: FiGrid, path: '/dashboard' }
+          ]
 
   const getActiveItem = () => {
     // Déterminer l'item actif basé sur le pathname

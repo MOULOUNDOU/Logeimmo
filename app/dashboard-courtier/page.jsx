@@ -465,6 +465,7 @@ function DashboardCourtierPage() {
                           </Link>
                           <button
                             onClick={() => handleDelete(annonce.id)}
+                            data-no-global-loader="true"
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Supprimer"
                           >

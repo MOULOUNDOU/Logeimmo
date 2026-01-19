@@ -26,17 +26,24 @@ export default function NotificationsPage() {
       const authData = await getCurrentUser()
       setMe(authData?.user || null)
       const userId = authData?.user?.id
+      const role = authData?.user?.role
       if (!userId) {
         setItems([])
         setLoading(false)
         return
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('notifications')
         .select('*, sender:profiles!notifications_sender_id_fkey(id, nom, email, telephone, photo_profil), message:messages!notifications_message_id_fkey(id, content, created_at)')
         .eq('recipient_id', userId)
         .order('created_at', { ascending: false })
+
+      if (role === 'admin') {
+        query = query.eq('type', 'new_user')
+      }
+
+      const { data, error } = await query
 
       if (error) {
         console.error(error)
@@ -167,7 +174,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <ProtectedRoute requiredRole="courtier">
+    <ProtectedRoute requiredRole={["courtier", "admin"]}>
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -177,9 +184,9 @@ export default function NotificationsPage() {
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-2">
                   <FiBell className="text-primary-500" size={28} />
-                  <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+                  <h1 className="text-3xl font-bold text-gray-900">{me?.role === 'admin' ? 'Nouveaux utilisateurs' : 'Notifications'}</h1>
                 </div>
-                <p className="text-gray-600">Consultez vos notifications récentes</p>
+                <p className="text-gray-600">{me?.role === 'admin' ? 'Les nouveaux comptes apparaîtront ici.' : 'Consultez vos notifications récentes'}</p>
               </div>
 
               {loading ? (
@@ -190,7 +197,7 @@ export default function NotificationsPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                   <FiBell className="mx-auto text-gray-400 mb-4" size={48} />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune notification</h3>
-                  <p className="text-gray-600">Vos notifications apparaîtront ici.</p>
+                  <p className="text-gray-600">{me?.role === 'admin' ? 'Aucun nouvel utilisateur pour le moment.' : 'Vos notifications apparaîtront ici.'}</p>
                 </div>
               ) : (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -220,7 +227,7 @@ export default function NotificationsPage() {
                           </p>
                           </div>
                           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                            {me?.id && n.sender_id === me.id && (
+                            {me?.role !== 'admin' && me?.id && n.sender_id === me.id && (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -232,16 +239,18 @@ export default function NotificationsPage() {
                                 Modifier
                               </button>
                             )}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReplyOpenId((prev) => (prev === n.id ? null : n.id))
-                                setReplyText('')
-                              }}
-                              className="px-3 py-2 text-sm rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900"
-                            >
-                              Répondre
-                            </button>
+                            {me?.role !== 'admin' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyOpenId((prev) => (prev === n.id ? null : n.id))
+                                  setReplyText('')
+                                }}
+                                className="px-3 py-2 text-sm rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900"
+                              >
+                                Répondre
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => deleteNotification(n.id)}
@@ -261,7 +270,7 @@ export default function NotificationsPage() {
                           </div>
                         </div>
 
-                        {editOpenId === n.id && (
+                        {me?.role !== 'admin' && editOpenId === n.id && (
                           <div className="mt-4 space-y-3">
                             <textarea
                               value={editText}
@@ -280,7 +289,7 @@ export default function NotificationsPage() {
                           </div>
                         )}
 
-                        {replyOpenId === n.id && (
+                        {me?.role !== 'admin' && replyOpenId === n.id && (
                           <div className="mt-4 space-y-3">
                             <textarea
                               value={replyText}
