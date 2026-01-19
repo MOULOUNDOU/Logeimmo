@@ -161,7 +161,9 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState({
     type: '',
-    ville: ''
+    ville: '',
+    prixMin: '',
+    prixMax: ''
   })
   const [user, setUser] = useState(null)
   const [isDark, setIsDark] = useState(false)
@@ -235,6 +237,17 @@ export default function Home() {
 
     if (filters.ville) {
       filtered = filtered.filter(annonce => annonce.ville === filters.ville)
+    }
+
+    const min = Number(filters.prixMin)
+    const max = Number(filters.prixMax)
+    const hasMin = Number.isFinite(min) && filters.prixMin !== ''
+    const hasMax = Number.isFinite(max) && filters.prixMax !== ''
+    if (hasMin) {
+      filtered = filtered.filter((annonce) => Number(annonce.prix) >= min)
+    }
+    if (hasMax) {
+      filtered = filtered.filter((annonce) => Number(annonce.prix) <= max)
     }
 
     setFilteredAnnonces(filtered)
@@ -555,20 +568,41 @@ export default function Home() {
                 <div>
                   <select
                     value={filters.type}
-                    onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                   >
                     <option value="">Tous les types</option>
-                    <option value="chambre">Chambre</option>
-                    <option value="studio">Studio</option>
-                    <option value="appartement">Appartement</option>
-                    <option value="maison">Maison</option>
+                    <option value="Appartement">Appartement</option>
+                    <option value="Maison">Maison</option>
+                    <option value="Studio">Studio</option>
+                    <option value="Chambre">Chambre</option>
+                    <option value="Terrain">Terrain</option>
                   </select>
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={filters.prixMin}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, prixMin: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    placeholder="Prix min (FCFA)"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={filters.prixMax}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, prixMax: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                    placeholder="Prix max (FCFA)"
+                  />
                 </div>
                 <div>
                   <select
                     value={filters.ville}
-                    onChange={(e) => setFilters({ ...filters, ville: e.target.value })}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, ville: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                   >
                     <option value="">Toutes les villes</option>
