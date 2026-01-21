@@ -131,14 +131,14 @@ export default function Sidebar() {
         { id: 'Commandes', icon: FiMail, path: '/demandes' },
         { id: 'Avis', icon: FiStar, path: '/avis' },
         { id: 'Notifications', icon: FiBell, path: '/notifications' },
-        { id: 'Passer en version Pro', icon: FiPackage, path: '/pro' }
+        { id: 'Version pro', icon: FiPackage, path: '/pro' }
       ]
     : isClient
       ? [
           { id: 'Tableau de bord', icon: FiGrid, path: '/dashboard-client' },
           { id: 'Favoris', icon: FiStar, path: '/favoris' },
           { id: 'Notifications', icon: FiBell, path: '/notifications-client' },
-          { id: 'Rechercher courtier', icon: FiMail, path: '/rechercher-courtier' }
+          { id: 'Voir courtiers', icon: FiMail, path: '/rechercher-courtier' }
         ]
       : isAdmin
         ? [
@@ -187,12 +187,12 @@ export default function Sidebar() {
       <div className="md:hidden p-4 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => handleNavigation('/')}
-          className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
             pathname === '/' ? 'bg-primary-500 text-gray-900' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <FiHome size={30} />
-          <span className="text-lg font-medium">Accueil</span>
+          <FiHome size={26} />
+          <span className="text-base font-medium">Accueil</span>
         </button>
       </div>
 
@@ -276,21 +276,21 @@ export default function Sidebar() {
             <button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-primary-500 text-gray-900'
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               <span className="relative">
-                <Icon size={30} />
+                <Icon size={26} />
                 {item.id === 'Notifications' && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] leading-4 text-center">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </span>
-              <span className="text-lg font-medium">{item.id}</span>
+              <span className="text-base font-medium">{item.id}</span>
             </button>
           )
         })}
@@ -302,21 +302,21 @@ export default function Sidebar() {
           type="button"
           onClick={toggleTheme}
           data-no-global-loader="true"
-          className="w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
-          {isDark ? <FiSun size={30} /> : <FiMoon size={30} />}
-          <span className="text-lg font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+          {isDark ? <FiSun size={26} /> : <FiMoon size={26} />}
+          <span className="text-base font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
         </button>
         <button 
           onClick={() => handleNavigation('/parametres')}
-          className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
             pathname === '/parametres'
               ? 'bg-primary-500 text-gray-900'
               : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <FiSettings size={30} />
-          <span className="text-lg font-medium">Paramètres</span>
+          <FiSettings size={26} />
+          <span className="text-base font-medium">Paramètres</span>
         </button>
       </div>
       </aside>
