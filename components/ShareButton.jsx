@@ -1,10 +1,31 @@
 'use client'
 
 import { useState } from 'react'
-import { FiShare2, FiCopy, FiCheck } from 'react-icons/fi'
+import { FiShare2, FiCheck } from 'react-icons/fi'
 
-export default function ShareButton({ annonceId, titre }) {
+export default function ShareButton({ annonceId, titre, description, photoUrl }) {
   const [copied, setCopied] = useState(false)
+
+  const getShareText = () => {
+    const desc = (description || '').trim()
+    if (!desc) return `Découvrez cette annonce: ${titre}`
+    const short = desc.length > 180 ? `${desc.slice(0, 180)}...` : desc
+    return `${titre}\n\n${short}`
+  }
+
+  const tryBuildShareFile = async () => {
+    if (!photoUrl) return null
+    try {
+      const res = await fetch(photoUrl, { mode: 'cors' })
+      if (!res.ok) return null
+      const blob = await res.blob()
+      const ext = blob.type === 'image/png' ? 'png' : 'jpg'
+      const fileName = `annonce-${annonceId}.${ext}`
+      return new File([blob], fileName, { type: blob.type || 'image/jpeg' })
+    } catch {
+      return null
+    }
+  }
 
   const handleShare = async (e) => {
     if (e) {
@@ -13,25 +34,33 @@ export default function ShareButton({ annonceId, titre }) {
     }
 
     const url = `${window.location.origin}/annonces/${annonceId}`
-    const shareText = `Découvrez cette annonce: ${titre}`
+    const shareText = getShareText()
+    const clipboardText = `${shareText}\n\n${url}`
 
     // Vérifier si l'API Web Share est disponible
     if (navigator.share) {
       try {
-        await navigator.share({
+        const basePayload = {
           title: titre,
           text: shareText,
           url: url
-        })
+        }
+
+        const file = await tryBuildShareFile()
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ ...basePayload, files: [file] })
+        } else {
+          await navigator.share(basePayload)
+        }
       } catch (error) {
         if (error.name !== 'AbortError') {
           console.error('Erreur lors du partage:', error)
-          copyToClipboard(url)
+          copyToClipboard(clipboardText)
         }
       }
     } else {
       // Fallback: copier le lien
-      copyToClipboard(url)
+      copyToClipboard(clipboardText)
     }
   }
 

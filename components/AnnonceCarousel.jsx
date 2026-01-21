@@ -105,7 +105,12 @@ export default function AnnonceCarousel({ annonces }) {
                   </div>
                   <div className="hidden sm:flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 mt-auto">
                     <LikeButton annonceId={annonce.id} />
-                    <ShareButton annonceId={annonce.id} titre={annonce.titre} />
+                    <ShareButton
+                      annonceId={annonce.id}
+                      titre={annonce.titre}
+                      description={annonce.description}
+                      photoUrl={annonce.photos && annonce.photos.length > 0 ? annonce.photos[0] : undefined}
+                    />
                     <Link
                       href={`/annonces/${annonce.id}`}
                       className="w-full sm:w-auto sm:ml-auto px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-xs font-medium transition-colors text-center"

@@ -140,7 +140,12 @@ function HomeAnnonceCard({ annonce, formatPrice }) {
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
           <LikeButton annonceId={annonce.id} />
-          <ShareButton annonceId={annonce.id} titre={annonce.titre} />
+          <ShareButton
+            annonceId={annonce.id}
+            titre={annonce.titre}
+            description={annonce.description}
+            photoUrl={annonce.photos && annonce.photos.length > 0 ? annonce.photos[0] : undefined}
+          />
           <Link
             href={`/annonces/${annonce.id}`}
             className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-sm font-medium transition-colors text-center"
@@ -170,7 +175,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 9
-  const heroWords = 'Trouvez votre logement idéal au Sénégal.'.split(' ')
+  const heroWords = 'Site des Courtiers du senegal'.split(' ')
 
   useEffect(() => {
     const load = async () => {

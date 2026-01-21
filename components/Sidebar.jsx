@@ -172,27 +172,27 @@ export default function Sidebar() {
 
   return (
     <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={close}
-        />
-      )}
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={close}
+      />
 
       <aside
         className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen flex flex-col z-50 overflow-y-auto
-        w-64 fixed left-0 top-0 md:static md:translate-x-0 transition-transform duration-200
+        w-64 fixed left-0 top-0 md:static md:translate-x-0 transition-transform duration-300 ease-in-out transform-gpu
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:!translate-x-0`}
       >
       <div className="md:hidden p-4 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => handleNavigation('/')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
             pathname === '/' ? 'bg-primary-500 text-gray-900' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <FiHome size={20} />
-          <span className="text-sm font-medium">Accueil</span>
+          <FiHome size={30} />
+          <span className="text-lg font-medium">Accueil</span>
         </button>
       </div>
 
@@ -212,7 +212,7 @@ export default function Sidebar() {
               </div>
             ) : (
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <FiUser className="text-primary-600" size={18} />
+                <FiUser className="text-primary-600" size={20} />
               </div>
             )}
             <div className="min-w-0">
@@ -258,9 +258,9 @@ export default function Sidebar() {
                 router.push('/')
                 router.refresh()
               }}
-              className="w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2"
+              className="w-full px-3 py-2 rounded-lg text-base text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2"
             >
-              <FiLogOut size={16} />
+              <FiLogOut size={22} />
               Déconnexion
             </button>
           </div>
@@ -276,21 +276,21 @@ export default function Sidebar() {
             <button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-primary-500 text-gray-900'
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               <span className="relative">
-                <Icon size={20} />
+                <Icon size={30} />
                 {item.id === 'Notifications' && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] leading-4 text-center">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </span>
-              <span className="text-sm font-medium">{item.id}</span>
+              <span className="text-lg font-medium">{item.id}</span>
             </button>
           )
         })}
@@ -302,21 +302,21 @@ export default function Sidebar() {
           type="button"
           onClick={toggleTheme}
           data-no-global-loader="true"
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
-          {isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
-          <span className="text-sm font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+          {isDark ? <FiSun size={30} /> : <FiMoon size={30} />}
+          <span className="text-lg font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
         </button>
         <button 
           onClick={() => handleNavigation('/parametres')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-4 rounded-lg transition-colors ${
             pathname === '/parametres'
               ? 'bg-primary-500 text-gray-900'
               : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <FiSettings size={20} />
-          <span className="text-sm font-medium">Paramètres</span>
+          <FiSettings size={30} />
+          <span className="text-lg font-medium">Paramètres</span>
         </button>
       </div>
       </aside>

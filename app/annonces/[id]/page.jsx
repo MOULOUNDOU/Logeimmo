@@ -220,7 +220,12 @@ export default function AnnonceDetailPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <LikeButton annonceId={annonce.id} />
-                  <ShareButton annonceId={annonce.id} titre={annonce.titre} />
+                  <ShareButton
+                    annonceId={annonce.id}
+                    titre={annonce.titre}
+                    description={annonce.description}
+                    photoUrl={annonce.photos && annonce.photos.length > 0 ? annonce.photos[0] : undefined}
+                  />
                 </div>
               </div>
 
