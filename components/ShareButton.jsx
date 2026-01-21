@@ -48,9 +48,9 @@ export default function ShareButton({ annonceId, titre, description, photoUrl })
 
         const file = await tryBuildShareFile()
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-          // Important: sur certains appareils, inclure `url` fait privilégier le lien et ignore la photo.
-          // On met donc le lien dans le texte pour favoriser le partage de l'image.
-          await navigator.share({ title: titre, text: clipboardText, files: [file] })
+          // Garder un lien cliquable: inclure toujours `url`.
+          // On garde aussi le lien dans le texte car certaines apps ignorent parfois le champ `url`.
+          await navigator.share({ ...basePayload, text: clipboardText, files: [file] })
         } else {
           await navigator.share(basePayload)
         }

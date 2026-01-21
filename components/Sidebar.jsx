@@ -180,8 +180,8 @@ export default function Sidebar() {
       />
 
       <aside
-        className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen flex flex-col z-50 overflow-y-auto
-        w-64 fixed left-0 top-0 md:static md:translate-x-0 transition-transform duration-300 ease-in-out transform-gpu
+        className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen md:h-[calc(100vh-4rem)] flex flex-col z-50 overflow-y-auto
+        w-64 fixed left-0 top-0 md:sticky md:top-16 md:translate-x-0 transition-transform duration-300 ease-in-out transform-gpu
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:!translate-x-0`}
       >
       <div className="md:hidden p-4 border-b border-gray-200 dark:border-gray-800">

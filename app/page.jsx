@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getCurrentUser, logout } from '@/lib/supabase/auth'
 import { getAnnonces } from '@/lib/supabase/annonces'
-import { FiHome, FiMapPin, FiMaximize2, FiSearch, FiLogIn, FiUserPlus, FiUser, FiKey, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheckCircle, FiMoon, FiSun, FiMenu, FiX, FiHeart, FiBell, FiGrid } from 'react-icons/fi'
+import { FiHome, FiMapPin, FiMaximize2, FiSearch, FiLogIn, FiLogOut, FiUserPlus, FiUser, FiKey, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheckCircle, FiMoon, FiSun, FiMenu, FiX, FiHeart, FiBell, FiGrid } from 'react-icons/fi'
 import AnnonceCarousel from '@/components/AnnonceCarousel'
 import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
@@ -346,205 +346,225 @@ export default function Home() {
                 <FiUser size={18} />
               </button>
               <div className="hidden md:flex items-center gap-4">
-              {user ? (
-                <>
-                  <button
-                    onClick={handleUserAction}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <FiUser size={18} />
-                    <span>{user.nom}</span>
-                  </button>
-                  {(user.role === 'courtier' || user.role === 'admin') && (
-                    <Link
-                      href="/publier"
-                      className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      <FiKey size={18} />
-                      <span>Publier une annonce</span>
-                    </Link>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <FiLogIn size={18} />
-                    <span>Connexion</span>
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    <FiUserPlus size={18} />
-                    <span>S'inscrire</span>
-                  </Link>
-                </>
-              )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-[60]">
-            <div
-              className="absolute inset-0 bg-black/40"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            <div
-              className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl p-4 overflow-y-auto flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                    <Image src="/digicode-immo-logo.jpeg" alt="Digicode Immo" width={32} height={32} priority />
-                  </div>
-                  <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Menu</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileMenuOpen(false)}
-                  data-no-global-loader="true"
-                  className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  aria-label="Fermer le menu"
-                >
-                  <FiX size={20} />
-                </button>
-              </div>
-
-              <nav className="space-y-1">
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <FiHome size={24} />
-                  <span>Accueil</span>
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  data-no-global-loader="true"
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  {isDark ? <FiSun size={24} /> : <FiMoon size={24} />}
-                  <span>{isDark ? 'Mode clair' : 'Mode sombre'}</span>
-                </button>
-                <Link
-                  href="/annonces"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <FiGrid size={24} />
-                  <span>Annonces</span>
-                </Link>
-
-                {user ? (
-                  <Link
-                    href={dashboardPath}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <FiUser size={24} />
-                    <span>Mon espace</span>
-                  </Link>
-                ) : (
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <FiUserPlus size={24} />
-                    <span>Devenir courtier</span>
-                  </Link>
-                )}
-
-                <Link
-                  href={notificationsPath}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <FiBell size={24} />
-                  <span>Notifications</span>
-                </Link>
-
-                <Link
-                  href={user ? '/favoris' : '/login'}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <FiHeart size={24} />
-                  <span>Favoris</span>
-                </Link>
-              </nav>
-
-              <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
                 {user ? (
                   <>
+                    <button
+                      onClick={handleUserAction}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      <FiUser size={18} />
+                      <span>{user.nom}</span>
+                    </button>
                     {(user.role === 'courtier' || user.role === 'admin') && (
                       <Link
                         href="/publier"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-3 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-lg font-medium"
+                        className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
                       >
-                        <FiKey size={24} />
+                        <FiKey size={18} />
                         <span>Publier une annonce</span>
                       </Link>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobileMenuOpen(false)
-                        handleUserAction()
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <FiUser size={24} />
-                      <span>{user.nom}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        logout()
-                        setMobileMenuOpen(false)
-                        router.push('/')
-                        router.refresh()
-                      }}
-                      className="w-full flex items-center justify-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      Déconnexion
-                    </button>
                   </>
                 ) : (
                   <>
                     <Link
                       href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     >
-                      <FiLogIn size={24} />
+                      <FiLogIn size={18} />
                       <span>Connexion</span>
                     </Link>
                     <Link
                       href="/register"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full flex items-center gap-3 px-3 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-lg font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-sm font-medium"
                     >
-                      <FiUserPlus size={24} />
+                      <FiUserPlus size={18} />
                       <span>S'inscrire</span>
                     </Link>
                   </>
                 )}
+
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  data-no-global-loader="true"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  aria-label={isDark ? 'Mode clair' : 'Mode sombre'}
+                  title={isDark ? 'Mode clair' : 'Mode sombre'}
+                >
+                  {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+
+        <div
+          className={`md:hidden fixed inset-0 z-[60] transition-opacity duration-300 ${
+            mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          aria-hidden={!mobileMenuOpen}
+        >
+          <div
+            className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+              mobileMenuOpen ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div
+            className={`absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl p-4 overflow-y-auto flex flex-col transform-gpu transition-transform duration-300 ease-in-out ${
+              mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                  <Image src="/digicode-immo-logo.jpeg" alt="Digicode Immo" width={32} height={32} priority />
+                </div>
+                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Menu</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                data-no-global-loader="true"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                aria-label="Fermer le menu"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <nav className="space-y-1">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <FiHome size={24} />
+                <span>Accueil</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                data-no-global-loader="true"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {isDark ? <FiSun size={24} /> : <FiMoon size={24} />}
+                <span>{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+              </button>
+
+              <Link
+                href="/annonces"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <FiGrid size={24} />
+                <span>Annonces</span>
+              </Link>
+
+              {user ? (
+                <Link
+                  href={dashboardPath}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiUser size={24} />
+                  <span>Mon espace</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <FiUserPlus size={24} />
+                  <span>Devenir courtier</span>
+                </Link>
+              )}
+
+              <Link
+                href={notificationsPath}
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <FiBell size={24} />
+                <span>Notifications</span>
+              </Link>
+
+              <Link
+                href={user ? '/favoris' : '/login'}
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <FiHeart size={24} />
+                <span>Favoris</span>
+              </Link>
+            </nav>
+
+            <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
+              {user ? (
+                <>
+                  {(user.role === 'courtier' || user.role === 'admin') && (
+                    <Link
+                      href="/publier"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-3 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-lg font-medium"
+                    >
+                      <FiKey size={24} />
+                      <span>Publier une annonce</span>
+                    </Link>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleUserAction()
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <FiUser size={24} />
+                    <span>{user.nom}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      router.push('/')
+                      Promise.resolve(logout()).catch(() => {})
+                    }}
+                    className="w-full flex items-center justify-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <FiLogOut size={22} />
+                    Déconnexion
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <FiLogIn size={24} />
+                    <span>Connexion</span>
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-3 px-3 py-3 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg transition-colors text-lg font-medium"
+                  >
+                    <FiUserPlus size={24} />
+                    <span>S'inscrire</span>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Hero Section */}
