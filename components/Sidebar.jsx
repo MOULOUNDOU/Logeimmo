@@ -250,19 +250,6 @@ export default function Sidebar() {
                 Administration
               </button>
             )}
-            <button
-              onClick={() => {
-                logout()
-                close()
-                startLoading()
-                router.push('/')
-                router.refresh()
-              }}
-              className="w-full px-3 py-2 rounded-lg text-base text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2"
-            >
-              <FiLogOut size={22} />
-              Déconnexion
-            </button>
           </div>
         </div>
       )}
@@ -318,6 +305,22 @@ export default function Sidebar() {
           <FiSettings size={26} />
           <span className="text-base font-medium">Paramètres</span>
         </button>
+
+        {user && (
+          <button
+            onClick={() => {
+              logout()
+              close()
+              startLoading()
+              router.push('/')
+              router.refresh()
+            }}
+            className="w-full px-3 py-3 rounded-lg text-base text-red-600 hover:bg-red-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2"
+          >
+            <FiLogOut size={22} />
+            Déconnexion
+          </button>
+        )}
       </div>
       </aside>
     </>
