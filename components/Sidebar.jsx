@@ -131,7 +131,7 @@ export default function Sidebar() {
         { id: 'Commandes', icon: FiMail, path: '/demandes' },
         { id: 'Avis', icon: FiStar, path: '/avis' },
         { id: 'Notifications', icon: FiBell, path: '/notifications' },
-        { id: 'Version pro', icon: FiPackage, path: '/pro' }
+        { id: 'Mes abonnés', icon: FiPackage, path: '/mes-abonnes' }
       ]
     : isClient
       ? [

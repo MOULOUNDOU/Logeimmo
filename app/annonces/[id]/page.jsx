@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getAnnonceById } from '@/lib/annonces'
 import { supabase } from '@/lib/supabase'
-import { FiHome, FiMapPin, FiMaximize2, FiArrowLeft, FiPhone, FiMessageCircle, FiUser, FiNavigation } from 'react-icons/fi'
+import { FiHome, FiMapPin, FiMaximize2, FiArrowLeft, FiPhone, FiMessageCircle, FiUser, FiNavigation, FiX } from 'react-icons/fi'
 import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
 import AvisSection from '@/components/AvisSection'
@@ -18,6 +18,7 @@ export default function AnnonceDetailPage() {
   const [courtier, setCourtier] = useState(null)
   const [loading, setLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -56,6 +57,23 @@ export default function AnnonceDetailPage() {
 
     load()
   }, [params.id, router])
+
+  useEffect(() => {
+    if (!isLightboxOpen) return
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setIsLightboxOpen(false)
+      if (!annonce?.photos || annonce.photos.length <= 1) return
+      if (e.key === 'ArrowLeft') {
+        setCurrentImageIndex((prev) => (prev - 1 + annonce.photos.length) % annonce.photos.length)
+      }
+      if (e.key === 'ArrowRight') {
+        setCurrentImageIndex((prev) => (prev + 1) % annonce.photos.length)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isLightboxOpen, annonce?.photos])
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA/mois'
@@ -97,6 +115,60 @@ export default function AnnonceDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isLightboxOpen && annonce.photos && annonce.photos.length > 0 && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsLightboxOpen(false)
+            }}
+            className="absolute top-4 right-4 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            aria-label="Fermer"
+          >
+            <FiX size={24} />
+          </button>
+
+          {annonce.photos.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setCurrentImageIndex((prev) => (prev - 1 + annonce.photos.length) % annonce.photos.length)
+              }}
+              className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              aria-label="Photo précédente"
+            >
+              <FiArrowLeft size={24} />
+            </button>
+          )}
+
+          <img
+            src={annonce.photos[currentImageIndex]}
+            alt={annonce.titre}
+            className="max-w-[95vw] max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {annonce.photos.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setCurrentImageIndex((prev) => (prev + 1) % annonce.photos.length)
+              }}
+              className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              aria-label="Photo suivante"
+            >
+              <FiArrowLeft className="rotate-180" size={24} />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,7 +204,8 @@ export default function AnnonceDetailPage() {
                     <img
                       src={annonce.photos[currentImageIndex]}
                       alt={annonce.titre}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02] cursor-zoom-in"
+                      onClick={() => setIsLightboxOpen(true)}
                     />
                     {annonce.photos.length > 1 && (
                       <>
