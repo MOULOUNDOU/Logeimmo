@@ -27,17 +27,18 @@ import { useEffect, useState } from 'react'
 export default function Sidebar() {
   const router = useRouter()
   const pathname = usePathname()
-  const { startLoading } = useNavigationLoader()
   const { isOpen, close } = useSidebar()
 
   const [userRole, setUserRole] = useState(null)
   const [user, setUser] = useState(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [followersCount, setFollowersCount] = useState(0)
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     let mounted = true
     let channel = null
+    let followersChannel = null
 
     const refreshUnreadCount = async (userId) => {
       const { count, error } = await supabase
@@ -54,6 +55,20 @@ export default function Sidebar() {
       }
     }
 
+    const refreshFollowersCount = async (userId) => {
+      const { count, error } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('followed_id', userId)
+
+      if (!mounted) return
+      if (error) {
+        setFollowersCount(0)
+      } else {
+        setFollowersCount(count || 0)
+      }
+    }
+
     const load = async () => {
       if (typeof window === 'undefined') return
       const authData = await getCurrentUser()
@@ -64,6 +79,10 @@ export default function Sidebar() {
       const userId = authData?.user?.id
       if (userId) {
         await refreshUnreadCount(userId)
+
+        if (authData?.user?.role === 'courtier') {
+          await refreshFollowersCount(userId)
+        }
 
         channel = supabase
           .channel(`sidebar-notifs-${userId}`)
@@ -80,6 +99,24 @@ export default function Sidebar() {
             }
           )
           .subscribe()
+
+        if (authData?.user?.role === 'courtier') {
+          followersChannel = supabase
+            .channel(`sidebar-followers-${userId}`)
+            .on(
+              'postgres_changes',
+              {
+                event: '*',
+                schema: 'public',
+                table: 'follows',
+                filter: `followed_id=eq.${userId}`
+              },
+              () => {
+                refreshFollowersCount(userId)
+              }
+            )
+            .subscribe()
+        }
       }
     }
 
@@ -89,6 +126,9 @@ export default function Sidebar() {
       mounted = false
       if (channel) {
         supabase.removeChannel(channel)
+      }
+      if (followersChannel) {
+        supabase.removeChannel(followersChannel)
       }
     }
   }, [])
@@ -165,7 +205,6 @@ export default function Sidebar() {
     if (pathname === path || pathname?.startsWith(path + '/')) {
       return
     }
-    startLoading()
     close()
     router.push(path)
   }
@@ -276,6 +315,11 @@ export default function Sidebar() {
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
+                {item.id === 'Mes abonnés' && followersCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-yellow-500 text-gray-900 text-[10px] leading-4 text-center">
+                    {followersCount > 99 ? '99+' : followersCount}
+                  </span>
+                )}
               </span>
               <span className="text-base font-medium">{item.id}</span>
             </button>
@@ -311,7 +355,6 @@ export default function Sidebar() {
             onClick={() => {
               logout()
               close()
-              startLoading()
               router.push('/')
               router.refresh()
             }}

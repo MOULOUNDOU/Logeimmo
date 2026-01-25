@@ -21,6 +21,7 @@ function ParametresPage() {
     confirmPassword: ''
   })
   const [profilePhoto, setProfilePhoto] = useState(null)
+  const [coverPhoto, setCoverPhoto] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
@@ -39,6 +40,7 @@ function ParametresPage() {
         telephone: authData.user.telephone || ''
       })
       setProfilePhoto(authData.user.photoProfil || null)
+      setCoverPhoto(authData.user.coverPhoto || null)
       setLoading(false)
     }
 
@@ -79,6 +81,25 @@ function ParametresPage() {
       setProfilePhoto(compressed)
     } catch (error) {
       setMessage('Erreur lors du téléchargement de la photo: ' + error.message)
+    }
+  }
+
+  const handleCoverSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validation = validateImage(file)
+    if (!validation.valid) {
+      setMessage('Erreur: ' + validation.error)
+      return
+    }
+
+    try {
+      const base64 = await fileToBase64(file)
+      const compressed = await compressImage(base64, 0.8, 1200)
+      setCoverPhoto(compressed)
+    } catch (error) {
+      setMessage('Erreur lors du téléchargement de la couverture: ' + error.message)
     }
   }
 
@@ -123,7 +144,8 @@ function ParametresPage() {
       await updateProfile(user.id, {
         nom: formData.nom,
         telephone: formData.telephone,
-        photoProfil: profilePhoto
+        photoProfil: profilePhoto,
+        coverPhoto
       })
 
       const authData = await getCurrentUser()
@@ -215,6 +237,37 @@ function ParametresPage() {
                           type="file"
                           accept="image/jpeg,image/jpg,image/png,image/webp"
                           onChange={handlePhotoSelect}
+                          className="hidden"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                      Photo de couverture
+                    </label>
+                    <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-50">
+                      {coverPhoto ? (
+                        <img src={coverPhoto} alt="Couverture" className="w-full h-40 object-cover" />
+                      ) : (
+                        <div className="w-full h-40 flex items-center justify-center text-gray-500">
+                          Aucune couverture
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <label
+                          htmlFor="cover-upload"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                        >
+                          <FiCamera size={20} />
+                          <span>Changer la couverture</span>
+                        </label>
+                        <input
+                          id="cover-upload"
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          onChange={handleCoverSelect}
                           className="hidden"
                         />
                       </div>

@@ -7,7 +7,8 @@ import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import { getCurrentUser } from '@/lib/supabase/auth'
 import { supabase } from '@/lib/supabase'
-import { FiHeart, FiHome } from 'react-icons/fi'
+import { FiHeart, FiHome, FiMapPin } from 'react-icons/fi'
+import RowItem from '@/components/RowItem'
 
 export default function FavorisPage() {
   const [loading, setLoading] = useState(true)
@@ -82,44 +83,34 @@ export default function FavorisPage() {
                   <p className="text-gray-600">Ajoutez des annonces en favoris pour les retrouver ici.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favorites.map((annonce) => (
-                    <Link
-                      key={annonce.id}
-                      href={`/annonces/${annonce.id}`}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                    >
-                      <div className="h-40 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden">
-                        {annonce.photos && annonce.photos.length > 0 ? (
-                          <img
-                            src={annonce.photos[0]}
-                            alt={annonce.titre}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <FiHome className="text-primary-600" size={56} />
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3">
-                          <span className="inline-block px-3 py-1 bg-primary-500 text-gray-900 text-xs font-medium rounded-full">
-                            {annonce.type}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {favorites.map((annonce) => (
+                      <RowItem
+                        key={annonce.id}
+                        href={`/annonces/${annonce.id}`}
+                        icon={
+                          <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary-100 text-primary-700 overflow-hidden">
+                            {annonce.photos && annonce.photos.length > 0 ? (
+                              <img src={annonce.photos[0]} alt={annonce.titre} className="w-11 h-11 object-cover" />
+                            ) : (
+                              <FiHome size={18} />
+                            )}
                           </span>
-                        </div>
-                      </div>
-                      <div className="p-5">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                          {annonce.titre}
-                        </h3>
-                        <p className="text-xl font-bold text-primary-600 mb-2">
-                          {formatPrice(annonce.prix)}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {annonce.quartier}, {annonce.ville}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                        }
+                        title={annonce.titre}
+                        subtitle={`${annonce.quartier}, ${annonce.ville}`}
+                        right={
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-primary-600">{formatPrice(annonce.prix)}</p>
+                            <p className="text-[11px] text-gray-500 mt-0.5 inline-flex items-center gap-1 justify-end">
+                              <FiMapPin size={12} /> {annonce.type}
+                            </p>
+                          </div>
+                        }
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

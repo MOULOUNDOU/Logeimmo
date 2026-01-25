@@ -54,7 +54,6 @@ export default function Header() {
 
   const handleLogout = () => {
     logout()
-    startLoading()
     router.push('/')
     router.refresh()
   }
@@ -76,7 +75,6 @@ export default function Header() {
         <button
           onClick={() => {
             if (pathname !== '/') {
-              startLoading()
               router.push('/')
             }
           }}

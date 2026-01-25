@@ -12,6 +12,33 @@ export function NavigationLoaderProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false)
   const timeoutRef = useRef(null)
 
+  const isDashboardPath = useMemo(() => {
+    const p = pathname || ''
+    return (
+      p.startsWith('/dashboard') ||
+      p.startsWith('/admin') ||
+      p.startsWith('/annonces') ||
+      p.startsWith('/demandes') ||
+      p.startsWith('/proprietes') ||
+      p.startsWith('/avis') ||
+      p.startsWith('/notifications') ||
+      p.startsWith('/notifications-client') ||
+      p.startsWith('/favoris') ||
+      p.startsWith('/parametres') ||
+      p.startsWith('/publier') ||
+      p.startsWith('/comparer') ||
+      p.startsWith('/mes-abonnes') ||
+      p.startsWith('/rechercher-courtier') ||
+      p.startsWith('/automatisations') ||
+      p.startsWith('/analytiques') ||
+      p.startsWith('/locataires') ||
+      p.startsWith('/locations') ||
+      p.startsWith('/revenus') ||
+      p.startsWith('/plus') ||
+      p.startsWith('/pro')
+    )
+  }, [pathname])
+
   const stopLoading = useCallback(() => {
     setIsLoading(false)
     if (timeoutRef.current) {
@@ -43,6 +70,7 @@ export function NavigationLoaderProvider({ children }) {
   // Loader global sur clic (plus intrusif): bouton / lien / role="button"
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (isDashboardPath) return
 
     const shouldIgnoreTarget = (el) => {
       if (!el) return true
@@ -77,7 +105,7 @@ export function NavigationLoaderProvider({ children }) {
     return () => {
       document.removeEventListener('click', handleDocumentClick, true)
     }
-  }, [startLoading])
+  }, [startLoading, isDashboardPath])
 
   useEffect(() => {
     return () => {

@@ -9,6 +9,7 @@ import { getCurrentUser, canPublishAnnonces } from '@/lib/supabase/auth'
 import { getAnnoncesByCourtier, deleteAnnonce } from '@/lib/supabase/annonces'
 import { supabase } from '@/lib/supabase'
 import { FiHome, FiEdit, FiTrash2, FiPlus, FiEye, FiUser, FiBarChart2, FiTrendingUp, FiMessageCircle, FiMapPin } from 'react-icons/fi'
+import { getFollowerCount, getFollowingCount } from '@/lib/supabase/follows'
 import Link from 'next/link'
 
 function DashboardCourtierPage() {
@@ -28,6 +29,8 @@ function DashboardCourtierPage() {
   const [likesByDay, setLikesByDay] = useState([])
   const [messagesByDay, setMessagesByDay] = useState([])
   const [topZones, setTopZones] = useState([])
+  const [followersCount, setFollowersCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
 
   const getFirstPhoto = (photos) => {
     if (!photos) return null
@@ -61,6 +64,17 @@ function DashboardCourtierPage() {
 
       setUser(authData.user)
       await loadMesAnnonces(authData.user.id)
+
+      try {
+        const [followers, following] = await Promise.all([
+          getFollowerCount(authData.user.id),
+          getFollowingCount(authData.user.id)
+        ])
+        setFollowersCount(followers)
+        setFollowingCount(following)
+      } catch (e) {
+        console.error(e)
+      }
     }
 
     load()
@@ -280,7 +294,7 @@ function DashboardCourtierPage() {
               </div>
 
               {/* KPIs */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                   <div className="flex items-center justify-between">
                     <div>
@@ -308,6 +322,26 @@ function DashboardCourtierPage() {
                       <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : kpis.messagesPeriod}</p>
                     </div>
                     <FiMessageCircle className="text-primary-500" size={22} />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Abonnés</p>
+                      <p className="text-2xl font-bold text-gray-900">{followersCount}</p>
+                    </div>
+                    <FiUser className="text-primary-500" size={22} />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Abonnements</p>
+                      <p className="text-2xl font-bold text-gray-900">{followingCount}</p>
+                    </div>
+                    <FiUser className="text-primary-500" size={22} />
                   </div>
                 </div>
 

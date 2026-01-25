@@ -119,7 +119,7 @@ function HomeAnnonceCard({ annonce, formatPrice }) {
         </p>
         
         {/* Courtier info */}
-        <div className="flex items-center gap-3 mb-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <Link href={`/profil/${annonce.createdBy}`} className="flex items-center gap-3 mb-4 pt-4 border-t border-gray-200 dark:border-gray-800 group">
           {annonce.createdByPhoto ? (
             <img
               src={annonce.createdByPhoto}
@@ -132,10 +132,10 @@ function HomeAnnonceCard({ annonce, formatPrice }) {
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{annonce.createdByNom}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600 transition-colors">{annonce.createdByNom}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Courtier</p>
           </div>
-        </div>
+        </Link>
         
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">

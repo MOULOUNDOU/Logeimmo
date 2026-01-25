@@ -10,6 +10,8 @@ import { FiHome, FiMapPin, FiMaximize2, FiArrowLeft, FiPhone, FiMessageCircle, F
 import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
 import AvisSection from '@/components/AvisSection'
+import { getCurrentUser } from '@/lib/supabase/auth'
+import { follow, unfollow, getFollowerCount, getMutualFollow } from '@/lib/supabase/follows'
 
 export default function AnnonceDetailPage() {
   const router = useRouter()
@@ -19,10 +21,19 @@ export default function AnnonceDetailPage() {
   const [loading, setLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [me, setMe] = useState(null)
+  const [followLoading, setFollowLoading] = useState(false)
+  const [followState, setFollowState] = useState({ iFollow: false, theyFollow: false, mutual: false })
+  const [followersCount, setFollowersCount] = useState(0)
+
+  const RECENT_KEY = 'digicode_recent_annonces'
 
   useEffect(() => {
     const load = async () => {
       if (typeof window === 'undefined' || !params.id) return
+
+      const authData = await getCurrentUser()
+      setMe(authData?.user || null)
 
       const annonceData = await getAnnonceById(params.id)
       if (!annonceData) {
@@ -31,6 +42,15 @@ export default function AnnonceDetailPage() {
       }
 
       setAnnonce(annonceData)
+
+      try {
+        const stored = window.localStorage.getItem(RECENT_KEY)
+        const current = stored ? JSON.parse(stored) : []
+        const next = [annonceData.id, ...current.filter((id) => id !== annonceData.id)].slice(0, 10)
+        window.localStorage.setItem(RECENT_KEY, JSON.stringify(next))
+      } catch {
+        // ignore
+      }
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -52,11 +72,55 @@ export default function AnnonceDetailPage() {
             }
       )
 
+      try {
+        const count = await getFollowerCount(annonceData.createdBy)
+        setFollowersCount(count)
+      } catch (e) {
+        console.error(e)
+      }
+
+      if (authData?.user?.id && authData.user.id !== annonceData.createdBy) {
+        try {
+          const mutual = await getMutualFollow(authData.user.id, annonceData.createdBy)
+          setFollowState(mutual)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
       setLoading(false)
     }
 
     load()
   }, [params.id, router])
+
+  const toggleFollow = async () => {
+    if (!annonce?.createdBy) return
+    if (!me?.id) {
+      router.push('/login?from=' + encodeURIComponent(`/annonces/${params.id}`))
+      return
+    }
+    if (me.id === annonce.createdBy) return
+
+    setFollowLoading(true)
+    try {
+      if (followState.iFollow) {
+        await unfollow(annonce.createdBy)
+        setFollowState((prev) => ({ ...prev, iFollow: false, mutual: false }))
+        setFollowersCount((c) => Math.max(0, c - 1))
+      } else {
+        await follow(annonce.createdBy)
+        const next = { ...followState, iFollow: true, mutual: followState.theyFollow }
+        setFollowState(next)
+        setFollowersCount((c) => c + 1)
+      }
+    } catch (e) {
+      console.error(e)
+      alert(e.message || 'Erreur')
+    } finally {
+      setFollowLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!isLightboxOpen) return
@@ -360,7 +424,7 @@ export default function AnnonceDetailPage() {
             {/* Contact Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-6 lg:sticky lg:top-24">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Contacter le courtier</h2>
-              <div className="mb-4 flex items-center gap-3">
+              <Link href={`/profil/${annonce.createdBy}`} className="mb-4 flex items-center gap-3 group">
                 {courtier.photoProfil ? (
                   <img
                     src={courtier.photoProfil}
@@ -373,12 +437,33 @@ export default function AnnonceDetailPage() {
                   </div>
                 )}
                 <div>
-                  <p className="font-medium text-gray-900">{courtier.nom}</p>
+                  <p className="font-medium text-gray-900 group-hover:text-primary-600 transition-colors">{courtier.nom}</p>
                   {courtier.telephone && (
                     <p className="text-sm text-gray-600 mt-1">{courtier.telephone}</p>
                   )}
+                  <p className="text-xs text-gray-500 mt-1">{followersCount} abonné(s)</p>
                 </div>
-              </div>
+              </Link>
+
+              {annonce.createdBy !== me?.id && (
+                <button
+                  type="button"
+                  onClick={toggleFollow}
+                  disabled={followLoading}
+                  data-no-global-loader="true"
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 ${
+                    followState.iFollow ? 'bg-gray-100 hover:bg-gray-200 text-gray-900' : 'bg-gray-900 hover:bg-gray-800 text-white'
+                  }`}
+                >
+                  {followLoading
+                    ? '...' 
+                    : followState.iFollow
+                      ? followState.mutual
+                        ? 'Abonnés mutuels'
+                        : 'Se désabonner'
+                      : "S'abonner"}
+                </button>
+              )}
               
               <div className="space-y-3">
                 {courtier.telephone ? (

@@ -7,7 +7,8 @@ import Sidebar from '@/components/Sidebar'
 import { FiBell } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/supabase/auth'
-import { FiUser } from 'react-icons/fi'
+import { FiUser, FiHome, FiUsers } from 'react-icons/fi'
+import RowItem from '@/components/RowItem'
 
 export default function NotificationsClientPage() {
   const [loading, setLoading] = useState(true)
@@ -19,6 +20,12 @@ export default function NotificationsClientPage() {
   const [editOpenId, setEditOpenId] = useState(null)
   const [editText, setEditText] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
+
+  const getNotifIcon = (n) => {
+    if (n.type === 'annonce') return <FiHome size={18} />
+    if (n.type === 'follow') return <FiUsers size={18} />
+    return <FiBell size={18} />
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -187,72 +194,89 @@ export default function NotificationsClientPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="divide-y divide-gray-200">
                     {items.map((n) => (
-                      <div key={n.id} className="p-4 sm:p-5">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                          <div className="min-w-0">
-                            <p className={`font-semibold ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>{n.title}</p>
-                            <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap break-words">{n.message?.content || n.body}</p>
+                      <div key={n.id} className="p-2 sm:p-3">
+                        <RowItem
+                          href={n.link || undefined}
+                          icon={
+                            <span className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${
+                              n.read ? 'bg-gray-100 text-gray-600' : 'bg-primary-100 text-primary-700'
+                            }`}
+                            >
+                              {getNotifIcon(n)}
+                            </span>
+                          }
+                          title={n.title}
+                          subtitle={
+                            (n.message?.content || n.body || '')
+                              ? `${(n.message?.content || n.body || '').slice(0, 80)}${(n.message?.content || n.body || '').length > 80 ? '…' : ''}`
+                              : ''
+                          }
+                          right={
+                            <div className="text-right">
+                              <p className="text-[11px] text-gray-500">{new Date(n.created_at).toLocaleString('fr-FR')}</p>
+                              {!n.read && <p className="text-[11px] font-semibold text-primary-600 mt-0.5">Nouveau</p>}
+                            </div>
+                          }
+                        />
 
-                            {n.sender && (
-                              <div className="flex items-center gap-2 mt-2 min-w-0">
-                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                                  {n.sender.photo_profil ? (
-                                    <img src={n.sender.photo_profil} alt={n.sender.nom} className="h-8 w-8 object-cover" />
-                                  ) : (
-                                    <FiUser className="text-gray-500" size={16} />
-                                  )}
-                                </div>
-                                <p className="text-xs text-gray-500 truncate">
-                                  De: {n.sender.nom} — {n.sender.email}{n.sender.telephone ? ` — ${n.sender.telephone}` : ''}
-                                </p>
-                              </div>
-                            )}
-
-                            <p className="text-xs text-gray-400 mt-2">
-                              {new Date(n.created_at).toLocaleString('fr-FR')}
+                        {n.sender && (
+                          <div className="mt-2 px-2 sm:px-3 flex items-center gap-2 min-w-0">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                              {n.sender.photo_profil ? (
+                                <img src={n.sender.photo_profil} alt={n.sender.nom} className="h-8 w-8 object-cover" />
+                              ) : (
+                                <FiUser className="text-gray-500" size={16} />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 truncate">
+                              De: {n.sender.nom} — {n.sender.email}{n.sender.telephone ? ` — ${n.sender.telephone}` : ''}
                             </p>
                           </div>
+                        )}
 
-                          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                            {me?.id && n.sender_id === me.id && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setEditOpenId((prev) => (prev === n.id ? null : n.id))
-                                  setEditText(n.message?.content || n.body || '')
-                                }}
-                                className="px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                              >
-                                Modifier
-                              </button>
-                            )}
+                        <div className="mt-3 px-2 sm:px-3 flex flex-wrap items-center gap-2">
+                          {me?.id && n.sender_id === me.id && (
                             <button
                               type="button"
                               onClick={() => {
-                                setReplyOpenId((prev) => (prev === n.id ? null : n.id))
-                                setReplyText('')
+                                setEditOpenId((prev) => (prev === n.id ? null : n.id))
+                                setEditText(n.message?.content || n.body || '')
                               }}
-                              className="px-3 py-2 text-sm rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900"
+                              data-no-global-loader="true"
+                              className="px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
                             >
-                              Répondre
+                              Modifier
                             </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReplyOpenId((prev) => (prev === n.id ? null : n.id))
+                              setReplyText('')
+                            }}
+                            data-no-global-loader="true"
+                            className="px-3 py-2 text-sm rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900"
+                          >
+                            Répondre
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteNotification(n.id)}
+                            data-no-global-loader="true"
+                            className="px-3 py-2 text-sm rounded-lg bg-red-50 hover:bg-red-100 text-red-700"
+                          >
+                            Supprimer
+                          </button>
+                          {!n.read && (
                             <button
                               type="button"
-                              onClick={() => deleteNotification(n.id)}
-                              className="px-3 py-2 text-sm rounded-lg bg-red-50 hover:bg-red-100 text-red-700"
+                              onClick={() => markAsRead(n.id)}
+                              data-no-global-loader="true"
+                              className="px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
                             >
-                              Supprimer
+                              Marquer lu
                             </button>
-                            {!n.read && (
-                              <button
-                                type="button"
-                                onClick={() => markAsRead(n.id)}
-                                className="px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                              >
-                                Marquer lu
-                              </button>
-                            )}
-                          </div>
+                          )}
                         </div>
 
                         {editOpenId === n.id && (

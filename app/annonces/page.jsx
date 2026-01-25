@@ -5,7 +5,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import { getAnnonces } from '@/lib/supabase/annonces'
-import { FiMapPin, FiHome, FiMaximize2, FiDollarSign, FiSearch, FiFilter } from 'react-icons/fi'
+import { FiMapPin, FiHome, FiMaximize2, FiSearch } from 'react-icons/fi'
 import Link from 'next/link'
 import LikeButton from '@/components/LikeButton'
 import ShareButton from '@/components/ShareButton'
@@ -15,12 +15,18 @@ function AnnoncesPage() {
   const [filteredAnnonces, setFilteredAnnonces] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortOption, setSortOption] = useState('date_desc')
+  const [comparisonIds, setComparisonIds] = useState([])
+  const [recentIds, setRecentIds] = useState([])
   const [filters, setFilters] = useState({
     type: '',
     ville: '',
     prixMin: '',
     prixMax: ''
   })
+
+  const RECENT_KEY = 'digicode_recent_annonces'
+  const COMPARE_KEY = 'digicode_compare_annonces'
 
   useEffect(() => {
     const loadAnnonces = async () => {
@@ -30,6 +36,23 @@ function AnnoncesPage() {
       setLoading(false)
     }
     loadAnnonces()
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const storedRecent = window.localStorage.getItem(RECENT_KEY)
+      setRecentIds(storedRecent ? JSON.parse(storedRecent) : [])
+    } catch {
+      setRecentIds([])
+    }
+
+    try {
+      const storedCompare = window.localStorage.getItem(COMPARE_KEY)
+      setComparisonIds(storedCompare ? JSON.parse(storedCompare) : [])
+    } catch {
+      setComparisonIds([])
+    }
   }, [])
 
   useEffect(() => {
@@ -59,8 +82,18 @@ function AnnoncesPage() {
       filtered = filtered.filter(annonce => annonce.prix <= parseFloat(filters.prixMax))
     }
 
+    if (sortOption === 'prix_asc') {
+      filtered.sort((a, b) => (a.prix || 0) - (b.prix || 0))
+    } else if (sortOption === 'prix_desc') {
+      filtered.sort((a, b) => (b.prix || 0) - (a.prix || 0))
+    } else if (sortOption === 'date_asc') {
+      filtered.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+    } else {
+      filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    }
+
     setFilteredAnnonces(filtered)
-  }, [searchTerm, filters, annonces])
+  }, [searchTerm, filters, annonces, sortOption])
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA/mois'
@@ -79,6 +112,42 @@ function AnnoncesPage() {
     }
     return null
   }
+
+  const toggleComparison = (annonceId) => {
+    if (typeof window === 'undefined') return
+    try {
+      const stored = window.localStorage.getItem(COMPARE_KEY)
+      const current = stored ? JSON.parse(stored) : []
+      const exists = current.includes(annonceId)
+      let next = []
+
+      if (exists) {
+        next = current.filter((id) => id !== annonceId)
+      } else {
+        if (current.length >= 3) return
+        next = [...current, annonceId]
+      }
+
+      window.localStorage.setItem(COMPARE_KEY, JSON.stringify(next))
+      setComparisonIds(next)
+    } catch {
+      // ignore
+    }
+  }
+
+  const clearComparison = () => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.removeItem(COMPARE_KEY)
+    } catch {
+      // ignore
+    }
+    setComparisonIds([])
+  }
+
+  const recentAnnonces = (recentIds || [])
+    .map((id) => annonces.find((a) => a.id === id))
+    .filter(Boolean)
 
   return (
     <ProtectedRoute>
@@ -137,7 +206,19 @@ function AnnoncesPage() {
                     </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <select
+                      value={sortOption}
+                      onChange={(e) => setSortOption(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="date_desc">Trier: plus récent</option>
+                      <option value="date_asc">Trier: plus ancien</option>
+                      <option value="prix_asc">Trier: prix croissant</option>
+                      <option value="prix_desc">Trier: prix décroissant</option>
+                    </select>
+                  </div>
                   <div>
                     <input
                       type="number"
@@ -158,6 +239,68 @@ function AnnoncesPage() {
                   </div>
                 </div>
               </div>
+
+              {comparisonIds.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="text-gray-700">
+                    {comparisonIds.length} annonce(s) en comparaison (max 3)
+                  </div>
+                  <div className="flex items-center gap-2 sm:ml-auto">
+                    <Link
+                      href="/comparer"
+                      className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Comparer
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={clearComparison}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Vider
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!loading && recentAnnonces.length > 0 && (
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-xl font-bold text-gray-900">Récemment vues</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recentAnnonces.slice(0, 3).map((annonce) => (
+                      <div key={`recent-${annonce.id}`} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <Link href={`/annonces/${annonce.id}`}>
+                          <div className="h-40 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden cursor-pointer group">
+                            {getFirstPhoto(annonce.photos) ? (
+                              <img
+                                src={getFirstPhoto(annonce.photos)}
+                                alt={annonce.titre}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <FiHome className="text-primary-600" size={64} />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                        <div className="p-4">
+                          <Link href={`/annonces/${annonce.id}`}>
+                            <h3 className="text-base font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-primary-600 transition-colors">
+                              {annonce.titre}
+                            </h3>
+                          </Link>
+                          <p className="text-lg font-bold text-primary-600">
+                            {formatPrice(annonce.prix)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Liste des annonces */}
               <div className="mb-4">
@@ -249,6 +392,24 @@ function AnnoncesPage() {
                             description={annonce.description}
                             photoUrl={annonce.photos && annonce.photos.length > 0 ? annonce.photos[0] : undefined}
                           />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              toggleComparison(annonce.id)
+                            }}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              comparisonIds.includes(annonce.id)
+                                ? 'bg-primary-500 hover:bg-primary-600 text-gray-900'
+                                : comparisonIds.length >= 3
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                            }`}
+                            disabled={!comparisonIds.includes(annonce.id) && comparisonIds.length >= 3}
+                          >
+                            {comparisonIds.includes(annonce.id) ? 'Retirer' : 'Comparer'}
+                          </button>
                           <Link
                             href={`/annonces/${annonce.id}`}
                             className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-lg text-sm font-medium transition-colors text-center"
